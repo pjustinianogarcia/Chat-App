@@ -1,6 +1,7 @@
 // Start.js
 import { useState } from 'react';
-import { ImageBackground, StyleSheet, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { ImageBackground, StyleSheet, View, Text, TouchableOpacity, TextInput, ALert } from 'react-native';
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 const Start = ({ navigation }) => {
   const [name, setName] = useState('');
@@ -9,6 +10,25 @@ const Start = ({ navigation }) => {
   const colors = ['#090C08', '#474056', '#8A95A5', '#B9C6AE'];
 
   const image = require('../img/bgimg.png');
+
+  // Initialize Firebase Authentication
+  const auth = getAuth();
+  // Function to handle anonymous sign-in and navigation
+  const signInUser = () => {
+    signInAnonymously(auth)
+      .then(result => {
+        // If sign-in is successful, navigate to the Chat screen with the necessary parameters
+        navigation.navigate('Chat', {
+          userID: result.user.uid,  // Pass the user's ID
+          name: name,  // Pass the user's name 
+          bgColor: bgColor || '#FFFFFF'  // Pass the selected background color (or a default color)
+        });
+      })
+      .catch((error) => {
+        // Handle any errors that occur during sign-in
+        Alert.alert("Unable to sign in, please try again later.");
+      });
+  }
 
   return (
     <View style={styles.container}>
@@ -34,7 +54,7 @@ const Start = ({ navigation }) => {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate('Chat', { name: name, bgColor: bgColor })}
+        onPress={signInUser}
       >
         <Text style={styles.buttonText}>Go to Chat</Text>
       </TouchableOpacity>
