@@ -10,7 +10,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // imports from firestore/firebase
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
 import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
 
 //import NetInfo
