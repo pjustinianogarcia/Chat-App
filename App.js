@@ -12,6 +12,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { initializeApp } from "firebase/app";
 import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
 
+import { getStorage } from "firebase/storage";
+
 //import NetInfo
 import { useNetInfo }from '@react-native-community/netinfo';
 
@@ -36,6 +38,8 @@ const App = () => {
 
    // Initialize Cloud Firestore and get a reference to the service
    const db = getFirestore(app);
+
+   const storage = getStorage(app);
 
     // Get network information
   const connectionStatus = useNetInfo();
@@ -64,6 +68,7 @@ const App = () => {
           name="Chat"
           component={Chat}
           initialParams={{ db, isConnected: connectionStatus.isConnected }}
+          storage={storage}
         />
       </Stack.Navigator>
     </NavigationContainer>
