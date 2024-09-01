@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
-// Google Firbase
+// Google Firebase
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 const Start = ({ navigation }) => {
@@ -100,11 +100,13 @@ const Start = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+
   title: {
     fontSize: 45,
     fontWeight: "600",
@@ -148,6 +150,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
   },
+
   chooseColorText: {
     fontSize: 16,
     fontWeight: "300",
@@ -155,10 +158,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     opacity: 0.5,
   },
+
   colorContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
+
   colorOption: {
     width: 50,
     height: 50,
@@ -166,6 +171,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginLeft: 10,
   },
+
   startButton: {
     backgroundColor: "#757083",
     padding: 15,
@@ -173,6 +179,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: "88%",
   },
+  
   startButtonText: {
     fontSize: 16,
     fontWeight: "600",
