@@ -1,3 +1,5 @@
+// App.js
+// Import StyleSheet
 import { StyleSheet } from "react-native";
 // Import the screens used in the app
 import Start from "./components/Start";

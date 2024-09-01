@@ -1,6 +1,13 @@
+// Chat.js
+// React imports
 import { useEffect, useState } from "react";
 import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
+// Imports from react native
 import { StyleSheet, View, Platform, KeyboardAvoidingView } from "react-native";
+import CustomActions from "./CustomActions";
+import MapView from "react-native-maps";
+import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+// Google Firebase
 import {
   onSnapshot,
   query,
@@ -8,11 +15,10 @@ import {
   collection,
   addDoc,
 } from "firebase/firestore";
+// AsyncStorage
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import CustomActions from "./CustomActions";
-import MapView from "react-native-maps";
-import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 
+// Chat function
 const Chat = ({ route, navigation, db, isConnected, storage }) => {
   const { userID } = route.params;
   const { name, backgroundColor } = route.params;

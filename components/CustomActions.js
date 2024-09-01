@@ -1,9 +1,13 @@
+// CustomActions.js
+// Imports from react native
 import { TouchableOpacity, View, Text, StyleSheet, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { useActionSheet } from "@expo/react-native-action-sheet";
+// Google Firbase
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+// Custome actions function
 const CustomActions = ({
   wrapperStyle,
   iconTextStyle,

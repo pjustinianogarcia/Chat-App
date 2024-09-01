@@ -1,4 +1,7 @@
+// Start.js
+// Imports from react native
 import React, { useState } from "react";
+// Imports from react native
 import {
   StyleSheet,
   View,
@@ -10,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Alert,
 } from "react-native";
+// Google Firbase
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 const Start = ({ navigation }) => {
