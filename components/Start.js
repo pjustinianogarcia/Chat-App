@@ -1,148 +1,180 @@
-// Start.js
-import { useState } from 'react';
-import { ImageBackground, StyleSheet, View, Text, TouchableOpacity, TextInput, ALert } from 'react-native';
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  ImageBackground,
+  TouchableOpacity,
+  Platform,
+  KeyboardAvoidingView,
+  Alert,
+} from "react-native";
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 const Start = ({ navigation }) => {
-  const [name, setName] = useState('');
-  const [bgColor, setBgColor] = useState('');
-
-  const colors = ['#090C08', '#474056', '#8A95A5', '#B9C6AE'];
-
-  const image = require('../img/bgimg.png');
-
-  // Initialize Firebase Authentication
+  // State for storing the username input and selected background color
+  const [name, setName] = useState("");
+  const [backgroundColor, setBackgroundColor] = useState("#FFFFFF"); // Default background color
+  // List of background colors for user selection
+  const backgroundColorList = ["#090C08", "#474056", "#8A95A5", "#B9C6AE"];
   const auth = getAuth();
-  // Function to handle anonymous sign-in and navigation
+
+  // Function to handle anonymous sign-in and navigate to the Chat screen
   const signInUser = () => {
     signInAnonymously(auth)
-      .then(result => {
-        // If sign-in is successful, navigate to the Chat screen with the necessary parameters
-        navigation.navigate('Chat', {
-          userID: result.user.uid,  // Pass the user's ID
-          name: name,  // Pass the user's name 
-          bgColor: bgColor || '#FFFFFF'  // Pass the selected background color (or a default color)
+      .then((result) => {
+        navigation.navigate("Chat", {
+          name: name,
+          backgroundColor: backgroundColor,
+          userID: result.user.uid,
         });
+        Alert.alert("Signed in Successfully!");
       })
       .catch((error) => {
-        // Handle any errors that occur during sign-in
-        Alert.alert("Unable to sign in, please try again later.");
+        Alert.alert("Unable to sign in, try later again.");
       });
-  }
+  };
 
   return (
-    <View style={styles.container}>
-      <ImageBackground source={image} resizeMode="cover" style={styles.image}>
-      <Text style={styles.title}>Chat App</Text>
-      <View style={styles.formContainer}>
-      <TextInput
-        style={styles.textInput}
-        value={name}
-        onChangeText={setName}
-        placeholder="Type your username here"
-        placeholderTextColor="#757083"
-      />
-      <Text style={styles.subtitle}>Choose Background Color:</Text>
-      <View style={styles.colorContainer}>
-        {colors.map((color) => (
-          <TouchableOpacity
-            key={color}
-            style={[styles.colorCircle, { backgroundColor: color }]}
-            onPress={() => setBgColor(color)}
+    <ImageBackground
+      source={require("../img/bgimg.png")}
+      style={[styles.container, { backgroundColor: backgroundColor }]}
+    >
+      <View style={{ flex: 1 }}>
+        <Text style={styles.title}>Chat App</Text>
+      </View>
+      <View style={styles.inputContainer}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Type your username here"
+            placeholderTextColor="#757083"
+            onChangeText={setName}
+            value={name}
           />
-        ))}
-      </View>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={signInUser}
-      >
-        <Text style={styles.buttonText}>Go to Chat</Text>
-      </TouchableOpacity>
-      </View>
-     </ImageBackground>
+        </View>
+        <View>
+          <Text style={styles.chooseColorText}>Choose a Background Color:</Text>
+          <View style={styles.colorContainer}>
+            {backgroundColorList.map((color, index) => (
+              /*  added accessibility  */
+              <TouchableOpacity
+                accessible={true}
+                accessibilityLabel="More options"
+                accessibilityHint="Lets you choose to send an image or your geolocation."
+                accessibilityRole="button"
+                key={index}
+                style={[
+                  styles.colorOption,
+                  {
+                    backgroundColor: color,
+                    borderWidth: backgroundColor === color ? 2 : 0,
+                    borderColor: "#FFF",
+                  },
+                ]}
+                onPress={() => setBackgroundColor(color)}
+              />
+            ))}
+          </View>
+        </View>
 
-    </View>
- 
+        <TouchableOpacity onPress={signInUser} style={styles.startButton}>
+          <Text style={styles.startButtonText}>Go to Chat</Text>
+        </TouchableOpacity>
+      </View>
+
+      {Platform.OS === "android" ? (
+        <KeyboardAvoidingView behavior="height" />
+      ) : null}
+
+      {Platform.OS === "ios" ? (
+        <KeyboardAvoidingView behavior="padding" />
+      ) : null}
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-
-
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
-
-  image: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  
-  },
-
   title: {
     fontSize: 45,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 300, // Spacing between title and other elements
+    fontWeight: "600",
+    color: "#FFFFFF",
+    marginBottom: 300,
     marginTop: 20,
   },
 
-  formContainer: {
-    width: '88%',
-    backgroundColor: '#FFFFFF', // White background
+  inputContainer: {
+    width: "88%",
+    backgroundColor: "#FFFFFF",
     padding: 20,
-    alignItems: 'center',
-    marginTop: 20,
+    height: "40%",
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 40,
   },
 
   textInput: {
-    width: '88%',
+    width: "88%",
     padding: 15,
     borderWidth: 1,
-    borderColor: '#757083', // Border color to match the text color
+    borderColor: "#757083",
     marginTop: 15,
     marginBottom: 15,
     fontSize: 16,
-    fontWeight: '300',
-    color: '#757083', // Text color inside the input
+    fontWeight: "300",
+    color: "#757083",
   },
 
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '300',
-    color: '#757083',
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    padding: 15,
+    width: "88%",
+    marginTop: 15,
     marginBottom: 15,
   },
 
+  textInput: {
+    flex: 1,
+  },
+  chooseColorText: {
+    fontSize: 16,
+    fontWeight: "300",
+    color: "black",
+    marginBottom: 15,
+    opacity: 0.5,
+  },
   colorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 15,
-    marginBottom: 20,
-    width: '88%',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  colorCircle: {
+  colorOption: {
     width: 50,
     height: 50,
     borderRadius: 25,
+    marginRight: 10,
+    marginLeft: 10,
   },
-  button: {
-    backgroundColor: '#757083',
+  startButton: {
+    backgroundColor: "#757083",
     padding: 15,
     borderRadius: 5,
-    width: '88%', // Make button width consistent with input and color options
+    marginTop: 20,
+    width: "88%",
   },
-  buttonText: {
+  startButtonText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#FFFFFF",
+    textAlign: "center",
   },
 });
 
 export default Start;
-

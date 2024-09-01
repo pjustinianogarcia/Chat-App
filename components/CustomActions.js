@@ -1,17 +1,29 @@
 import { TouchableOpacity, View, Text, StyleSheet, Alert } from "react-native";
-import * as ImagePicker from 'expo-image-picker';
-import * as Location from 'expo-location';
-import { useActionSheet } from '@expo/react-native-action-sheet';
+import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+const CustomActions = ({
+  wrapperStyle,
+  iconTextStyle,
+  onSend,
+  storage,
+  userID,
+}) => {
+  const { showActionSheetWithOptions } = useActionSheet();
 
-const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, storage, userID }) => {
-  const actionSheet = useActionSheet();
-
+  // Function to display action sheet with options for selecting media or location
   const onActionPress = () => {
-    const options = ['Choose From Library', 'Take Picture', 'Send Location', 'Cancel'];
+    const options = [
+      "Choose From Library",
+      "Take Picture",
+      "Send Location",
+      "Cancel",
+    ];
+
     const cancelButtonIndex = options.length - 1;
-    actionSheet.showActionSheetWithOptions(
+    showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex,
@@ -28,108 +40,81 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, storage, userID })
             getLocation();
           default:
         }
-      },
+      }
     );
   };
 
+  // Function to generate a unique reference name for the image
+  const generateReference = (uri) => {
+    const timeStamp = new Date().getTime();
+    const imageName = uri.split("/").pop();
+    return `${userID}-${timeStamp}-${imageName}`;
+  };
+
+  // Function to upload the image to Firebase and send its URL
   const uploadAndSendImage = async (imageURI) => {
     try {
       const uniqueRefString = generateReference(imageURI);
       const newUploadRef = ref(storage, uniqueRefString);
       const response = await fetch(imageURI);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch the image from the URI.");
+      }
       const blob = await response.blob();
-      const snapshot = await uploadBytes(newUploadRef, blob);
-      const imageURL = await getDownloadURL(snapshot.ref);
-      onSend({
-        _id: uniqueRefString,
-        createdAt: new Date(),
-        user: {
-          _id: userID,
-          name: 'User',
-        },
-        image: imageURL
-      });
+      await uploadBytes(newUploadRef, blob);
+      const imageURL = await getDownloadURL(newUploadRef);
+      onSend({ image: imageURL });
     } catch (error) {
-      console.error("Error uploading image", error);
-      Alert.alert("Error uploading image", error.message);
+      console.error("Error uploading and sending image:", error.message);
+      Alert.alert("Error uploading image:", error.message);
     }
   };
 
-
+  // Function to pick an image from the library
   const pickImage = async () => {
     let permissions = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissions.granted) {
+    if (permissions?.granted) {
       let result = await ImagePicker.launchImageLibraryAsync();
-      if (!result.canceled) {
-        await uploadAndSendImage(result.assets[0].uri);
-      }
-    } else {
-      Alert.alert("Permissions haven't been granted.");
+      if (!result.canceled) await uploadAndSendImage(result.assets[0].uri);
+      else Alert.alert("Permissions haven't been granted.");
     }
   };
 
+  // Function to take a photo using the camera
   const takePhoto = async () => {
     let permissions = await ImagePicker.requestCameraPermissionsAsync();
-    if (permissions.granted) {
+    if (permissions?.granted) {
       let result = await ImagePicker.launchCameraAsync();
-      if (!result.canceled) {
-        await uploadAndSendImage(result.assets[0].uri);
-      }
-    } else {
-      Alert.alert("Permissions haven't been granted.");
+      if (!result.canceled) await uploadAndSendImage(result.assets[0].uri);
+      else Alert.alert("Permissions haven't been granted.");
     }
   };
 
-
+  // Function to get the current location and send it
   const getLocation = async () => {
     let permissions = await Location.requestForegroundPermissionsAsync();
-    if (permissions.granted) {
+    if (permissions?.granted) {
       const location = await Location.getCurrentPositionAsync({});
       if (location) {
         onSend({
-          _id: `${userID}-${(new Date()).getTime()}`,
-          createdAt: new Date(),
-          user: {
-            _id: userID,
-            name: 'User',
-          },
           location: {
             longitude: location.coords.longitude,
             latitude: location.coords.latitude,
           },
         });
-      } else {
-        Alert.alert("Error occurred while fetching location");
-      }
-    } else {
-      Alert.alert("Permissions haven't been granted.");
-    }
-  };
-  
-
-
-
-
-
-  const generateReference = (uri) => {
-    const timeStamp = (new Date()).getTime();
-    const imageName = uri.split("/").pop();
-    return `${userID}-${timeStamp}-${imageName}`;
+      } else Alert.alert("Error occurred while fetching location");
+    } else Alert.alert("Permissions haven't been granted.");
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onActionPress}
-      accessible={true}
-      accessibilityRole="button"
-      accessibilityLabel="More chat actions"
-      accessibilityHint="Let’s you choose to send an image from your library, take a photo, or share your geolocation">
+    <TouchableOpacity style={styles.container} onPress={onActionPress}>
       <View style={[styles.wrapper, wrapperStyle]}>
         <Text style={[styles.iconText, iconTextStyle]}>+</Text>
       </View>
     </TouchableOpacity>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -140,16 +125,16 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     borderRadius: 13,
-    borderColor: '#b2b2b2',
+    borderColor: "#b2b2b2",
     borderWidth: 2,
     flex: 1,
   },
   iconText: {
-    color: '#b2b2b2',
-    fontWeight: 'bold',
+    color: "#b2b2b2",
+    fontWeight: "bold",
     fontSize: 16,
-    backgroundColor: 'transparent',
-    textAlign: 'center',
+    backgroundColor: "transparent",
+    textAlign: "center",
   },
 });
 
